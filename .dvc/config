@@ -1,0 +1,4 @@
+['remote "mys3"']
+url = s3://dvc-cat/resnet
+[core]
+remote = mys3

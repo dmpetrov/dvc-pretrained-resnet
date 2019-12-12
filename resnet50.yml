@@ -1,0 +1,12 @@
+artifacts:
+  - description: ResNet-50 model from Deep Residual Learning for Image Recognition
+    paper: https://arxiv.org/pdf/1512.03385.pdf
+    metrics:
+      - top1-error: 23.85
+        top5-error: 7.13
+    summon:
+      - type: python
+        file: resnet.py
+        call: resnet50
+        deps: ['resnet50.pth.dvc']
+
