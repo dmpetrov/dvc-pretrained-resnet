@@ -5,101 +5,7 @@ import os
 import torch
 import torch.nn as nn
 
-
-def conv3x3(in_planes, out_planes, stride=1, groups=1, dilation=1):
-    """3x3 convolution with padding"""
-    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
-                     padding=dilation, groups=groups, bias=False, dilation=dilation)
-
-
-def conv1x1(in_planes, out_planes, stride=1):
-    """1x1 convolution"""
-    return nn.Conv2d(in_planes, out_planes, kernel_size=1, stride=stride, bias=False)
-
-
-class BasicBlock(nn.Module):
-    expansion = 1
-    __constants__ = ['downsample']
-
-    def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
-                 base_width=64, dilation=1, norm_layer=None):
-        super(BasicBlock, self).__init__()
-        if norm_layer is None:
-            norm_layer = nn.BatchNorm2d
-        if groups != 1 or base_width != 64:
-            raise ValueError('BasicBlock only supports groups=1 and base_width=64')
-        if dilation > 1:
-            raise NotImplementedError("Dilation > 1 not supported in BasicBlock")
-        # Both self.conv1 and self.downsample layers downsample the input when stride != 1
-        self.conv1 = conv3x3(inplanes, planes, stride)
-        self.bn1 = norm_layer(planes)
-        self.relu = nn.ReLU(inplace=True)
-        self.conv2 = conv3x3(planes, planes)
-        self.bn2 = norm_layer(planes)
-        self.downsample = downsample
-        self.stride = stride
-
-    def forward(self, x):
-        identity = x
-
-        out = self.conv1(x)
-        out = self.bn1(out)
-        out = self.relu(out)
-
-        out = self.conv2(out)
-        out = self.bn2(out)
-
-        if self.downsample is not None:
-            identity = self.downsample(x)
-
-        out += identity
-        out = self.relu(out)
-
-        return out
-
-
-class Bottleneck(nn.Module):
-    expansion = 4
-    __constants__ = ['downsample']
-
-    def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
-                 base_width=64, dilation=1, norm_layer=None):
-        super(Bottleneck, self).__init__()
-        if norm_layer is None:
-            norm_layer = nn.BatchNorm2d
-        width = int(planes * (base_width / 64.)) * groups
-        # Both self.conv2 and self.downsample layers downsample the input when stride != 1
-        self.conv1 = conv1x1(inplanes, width)
-        self.bn1 = norm_layer(width)
-        self.conv2 = conv3x3(width, width, stride, groups, dilation)
-        self.bn2 = norm_layer(width)
-        self.conv3 = conv1x1(width, planes * self.expansion)
-        self.bn3 = norm_layer(planes * self.expansion)
-        self.relu = nn.ReLU(inplace=True)
-        self.downsample = downsample
-        self.stride = stride
-
-    def forward(self, x):
-        identity = x
-
-        out = self.conv1(x)
-        out = self.bn1(out)
-        out = self.relu(out)
-
-        out = self.conv2(out)
-        out = self.bn2(out)
-        out = self.relu(out)
-
-        out = self.conv3(out)
-        out = self.bn3(out)
-
-        if self.downsample is not None:
-            identity = self.downsample(x)
-
-        out += identity
-        out = self.relu(out)
-
-        return out
+from blocks import BasicBlock, Bottleneck, conv3x3, conv1x1
 
 
 class ResNet(nn.Module):
@@ -201,11 +107,9 @@ class ResNet(nn.Module):
         return self._forward_impl(x)
 
 
-WEIGHTS_DIR = 'weights'
-
 def enrich(model, name, pretrained=True):
     if pretrained:
-        fname = os.path.join(WEIGHTS_DIR, name + '.pth')
+        fname = name + '.pth'
         with open(fname, mode='rb') as fd:
             weights = torch.load(fd)
             model.load_state_dict(weights)
@@ -220,46 +124,12 @@ def resnet18(pretrained=True, **kwargs):
     return enrich(model, 'resnet18', pretrained)
 
 
-def resnet34(pretrained=True, **kwargs):
-    r"""ResNet-34 model from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
-    """
-    model = ResNet(BasicBlock, [3, 4, 6, 3], **kwargs)
-    return enrich(model, 'resnet34', pretrained)
-
-
 def resnet50(pretrained=True, **kwargs):
     r"""ResNet-50 model from
     `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
     """
     model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
     return enrich(model, 'resnet50', pretrained)
-
-
-def resnet101(pretrained=True, **kwargs):
-    r"""ResNet-101 model from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
-    """
-    model = ResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
-    return enrich(model, 'resnet101', pretrained)
-
-
-def resnet152(pretrained=True, **kwargs):
-    r"""ResNet-152 model from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_
-    """
-    model = ResNet(Bottleneck, [3, 8, 36, 3], **kwargs)
-    return enrich(model, 'resnet152', pretrained)
-
-
-def resnext50_32x4d(pretrained=True, **kwargs):
-    r"""ResNeXt-50 32x4d model from
-    `"Aggregated Residual Transformation for Deep Neural Networks" <https://arxiv.org/pdf/1611.05431.pdf>`_
-    """
-    kwargs['groups'] = 32
-    kwargs['width_per_group'] = 4
-    model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
-    return enrich(model, 'resnext50_32x4d', pretrained)
 
 
 def resnext101_32x8d(pretrained=True, progress=True, **kwargs):
@@ -270,32 +140,4 @@ def resnext101_32x8d(pretrained=True, progress=True, **kwargs):
     kwargs['width_per_group'] = 8
     model = ResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
     return enrich(model, 'resnext101_32x8d', pretrained)
-
-
-def wide_resnet50_2(pretrained=True, **kwargs):
-    r"""Wide ResNet-50-2 model from
-    `"Wide Residual Networks" <https://arxiv.org/pdf/1605.07146.pdf>`_
-
-    The model is the same as ResNet except for the bottleneck number of channels
-    which is twice larger in every block. The number of channels in outer 1x1
-    convolutions is the same, e.g. last block in ResNet-50 has 2048-512-2048
-    channels, and in Wide ResNet-50-2 has 2048-1024-2048.
-    """
-    kwargs['width_per_group'] = 64 * 2
-    model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
-    return enrich(model, 'wide_resnet50_2', pretrained)
-
-
-def wide_resnet101_2(pretrained=True, **kwargs):
-    r"""Wide ResNet-101-2 model from
-    `"Wide Residual Networks" <https://arxiv.org/pdf/1605.07146.pdf>`_
-
-    The model is the same as ResNet except for the bottleneck number of channels
-    which is twice larger in every block. The number of channels in outer 1x1
-    convolutions is the same, e.g. last block in ResNet-50 has 2048-512-2048
-    channels, and in Wide ResNet-50-2 has 2048-1024-2048.
-    """
-    kwargs['width_per_group'] = 64 * 2
-    model = ResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
-    return enrich(model, 'wide_resnet101_2', pretrained)
 
