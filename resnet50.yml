@@ -1,5 +1,6 @@
 artifacts:
-  - description: ResNet-50 model from Deep Residual Learning for Image Recognition
+  - name: resnet50
+    description: "ResNet-50 model from Deep Residual Learning for Image Recognition"
     paper: https://arxiv.org/pdf/1512.03385.pdf
     metrics:
       - top1-error: 23.85
@@ -9,4 +10,24 @@ artifacts:
         file: resnet.py
         call: resnet50
         deps: ['resnet50.pth.dvc']
+        req: [
+            "torch>=1.3.0",
+            "torchvision>=0.4.1"
+        ]
+
+  - name: resnet18
+    description: ResNet-18 model from Deep Residual Learning for Image Recognition
+    paper: https://arxiv.org/pdf/1512.03385.pdf
+    metrics:
+      - top1-error: 30.24
+      - top5-error: 10.92
+    summon:
+      - type: python
+        file: resnet.py
+        call: resnet18
+        deps: ['resnet18.pth.dvc']
+        req: [
+            "torch>=1.3.0",
+            "torchvision>=0.4.1"
+        ]
 
