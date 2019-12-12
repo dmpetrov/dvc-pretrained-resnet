@@ -1,7 +1,0 @@
-attributes:
-- description: ResNet-18 model from Deep Residual Learning for Image Recognition
-- paper: https://arxiv.org/pdf/1512.03385.pdf
-- metrics:
-    - top1-error: 30.24
-    - top5-error: 10.92
-
