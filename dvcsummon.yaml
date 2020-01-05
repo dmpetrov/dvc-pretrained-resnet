@@ -1,0 +1,13 @@
+objects:
+  - name: resnet50
+    summon:
+        type: python
+        call: resnet.resnet50
+        deps: ['resnet50.pth']
+
+  - name: resnet18
+    summon:
+        type: python
+        call: resnet.resnet18
+        deps: ['resnet18.pth']
+

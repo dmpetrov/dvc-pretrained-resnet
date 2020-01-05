@@ -1,20 +1,7 @@
-artifacts:
+objects:
   - name: resnext101
-    description: >
-        ResNeXt-101 32x8d model from "Aggregated Residual
-        Transformation for Deep Neural Networks"
-
-    paper: https://arxiv.org/pdf/1611.05431.pdf
-    metrics:
-      - top1-error: 20.69
-      - top5-error: 5.47
     summon:
-      - type: python
-        file: resnet.py
-        call: resnext101_32x8d
-        deps: ['resnet50.pth']
-        req: [
-            "torch>=1.3.0",
-            "torchvision>=0.4.1"
-        ]
+        type: python
+        call: resnet.resnext101_32x8d
+        deps: ['resnext101_32x8d.pth']
 
