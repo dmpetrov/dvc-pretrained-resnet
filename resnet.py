@@ -107,12 +107,11 @@ class ResNet(nn.Module):
         return self._forward_impl(x)
 
 
-def enrich(summon, model, weights_file, pretrained=True):
-    if pretrained:
-        summon.pull(weights_file)
-        with open(weights_file, mode='rb') as fd:
-            weights = torch.load(fd)
-            model.load_state_dict(weights)
+def enrich(summon, model, weights_file):
+    summon.pull(weights_file)
+    with open(weights_file, mode='rb') as fd:
+        weights = torch.load(fd)
+        model.load_state_dict(weights)
     return model
 
 
@@ -122,7 +121,9 @@ def resnet18(summon, pretrained=True, **kwargs):
     """
     weights_file = kwargs.pop('weights_file', 'resnet18.pth')
     model = ResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
-    return enrich(summon, model, weights_file, pretrained)
+    if pretrained:
+        model = enrich(summon, model, weights_file)
+    return model
 
 
 def resnet50(summon, pretrained, **kwargs):
@@ -131,7 +132,9 @@ def resnet50(summon, pretrained, **kwargs):
     """
     weights_file = kwargs.pop('weights_file', 'resnet50.pth')
     model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
-    return enrich(summon, model, weights_file, pretrained)
+    if pretrained:
+        model = enrich(summon, model, weights_file)
+    return model
 
 
 def resnext101_32x8d(summon, pretrained=True, progress=True, **kwargs):
@@ -142,5 +145,7 @@ def resnext101_32x8d(summon, pretrained=True, progress=True, **kwargs):
     kwargs['width_per_group'] = 8
     weights_file = kwargs.pop('weights_file', 'resnet50.pth')
     model = ResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
-    return enrich(summon, model, weights_file, pretrained)
+    if pretrained:
+        model = enrich(summon, model, weights_file)
+    return model
 
