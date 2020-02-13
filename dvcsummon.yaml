@@ -3,11 +3,15 @@ objects:
         summon:
             type: python
             call: resnet.resnet50
-            deps: ['resnet50.pth']
+            args:
+                pretrained: True
+                weights_file: resnet50.pth
 
     resnet18:
         summon:
             type: python
             call: resnet.resnet18
-            deps: ['resnet18.pth']
+            args:
+                pretrained: True
+                weights_file: resnet18.pth
 

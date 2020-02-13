@@ -1,7 +1,9 @@
 objects:
-  - name: resnext101
-    summon:
-        type: python
-        call: resnet.resnext101_32x8d
-        deps: ['resnext101_32x8d.pth']
+    resnext101:
+        summon:
+            type: python
+            call: resnet.resnext101_32x8d
+            args:
+                weights_file: resnext101_32x8d.pth
+                pretrained: True
 
