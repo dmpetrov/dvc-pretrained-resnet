@@ -1,4 +1,6 @@
-['remote "mys3"']
-url = s3://dvc-cat/resnet
 [core]
-remote = mys3
+    remote = news3
+['remote "mys3"']
+    url = s3://dvc-cat/resnet
+['remote "news3"']
+    url = s3://dvc-public/remote/dvc-pretrained-resnet
